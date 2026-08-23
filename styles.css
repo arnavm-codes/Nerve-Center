@@ -1,0 +1,90 @@
+.sbd-view-container {
+	background: #0a0a0a;
+	color: #d4d4d4;
+	font-family: var(--font-monospace, 'JetBrains Mono', monospace);
+	padding: 1rem;
+	height: 100%;
+	overflow-y: auto;
+}
+
+.sbd-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #ff8c1a55;
+	padding-bottom: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.sbd-header-title {
+	color: #ff8c1a;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+}
+
+.sbd-empty-state {
+	color: #888;
+	font-size: 0.9rem;
+	padding: 2rem 0;
+	text-align: center;
+}
+
+.sbd-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+}
+
+.sbd-size-2x1,
+.sbd-size-2x2 {
+	grid-column: span 2;
+}
+
+.sbd-widget {
+	border: 1px solid #262626;
+	background: #111111;
+	border-radius: 2px;
+}
+
+.sbd-widget-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.4rem 0.6rem;
+}
+
+.sbd-widget-title {
+	color: #ff8c1a;
+	font-size: 0.75rem;
+	font-variant: small-caps;
+	letter-spacing: 0.08em;
+	font-weight: 600;
+}
+
+.sbd-widget-actions {
+	display: flex;
+	gap: 0.3rem;
+}
+
+.sbd-icon-btn {
+	background: none;
+	border: none;
+	color: #888;
+	cursor: pointer;
+	font-size: 0.85rem;
+	line-height: 1;
+	padding: 0.15rem;
+}
+
+.sbd-icon-btn:hover {
+	color: #ff8c1a;
+}
+
+.sbd-widget-divider {
+	border-top: 1px solid #262626;
+}
+
+.sbd-widget-content {
+	padding: 0.6rem;
+	font-size: 0.85rem;
+}

@@ -1,0 +1,9 @@
+{
+	"id": "secondbrain-dashboard",
+	"name": "SecondBrain Dashboard",
+	"version": "0.1.0",
+	"minAppVersion": "1.0.0",
+	"description": "A modular, customizable home-base dashboard: calendar, tasks, Claude Code usage, and vault Q&A.",
+	"author": "Arnav",
+	"isDesktopOnly": true
+}
