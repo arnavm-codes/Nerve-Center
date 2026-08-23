@@ -10,7 +10,7 @@
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
-	"license": "0-BSD",
+	"license": "MIT",
 	"devDependencies": {
 		"@tsconfig/svelte": "^5.0.4",
 		"@types/node": "^22.15.17",
