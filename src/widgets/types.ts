@@ -9,8 +9,6 @@ export interface DashboardWidget {
 	defaultSize: WidgetSize;
 	Component: typeof SvelteComponent;
 	SettingsComponent?: typeof SvelteComponent;
-	/** Set false for widgets with no refresh() export (e.g. purely interactive ones) to hide the shell's refresh button instead of showing a no-op. */
-	hasRefresh?: boolean;
 }
 
 export interface WidgetInstanceConfig {

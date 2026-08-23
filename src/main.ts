@@ -13,8 +13,8 @@ export default class SecondBrainDashboardPlugin extends Plugin {
 	data!: DashboardData;
 
 	async onload(): Promise<void> {
-		registerWidget(tasksWidget);
 		registerWidget(usageWidget);
+		registerWidget(tasksWidget);
 		registerWidget(calendarWidget);
 		registerWidget(vaultQAWidget);
 

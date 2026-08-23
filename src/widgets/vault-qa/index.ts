@@ -9,5 +9,4 @@ export const vaultQAWidget: DashboardWidget = {
 	defaultSize: '2x1',
 	Component: VaultQAWidget,
 	SettingsComponent: VaultQASettings,
-	hasRefresh: false,
 };
