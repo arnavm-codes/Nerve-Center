@@ -1,9 +1,18 @@
 <script lang="ts">
 	import { getContext, onDestroy } from 'svelte';
+	import { get } from 'svelte/store';
 	import { FileSystemAdapter, type App } from 'obsidian';
+	import * as fs from 'fs';
+	import * as os from 'os';
+	import * as path from 'path';
 	import { askVault, type RunClaudeHandle } from './runClaude';
 	import { buildLiveContext } from './liveContext';
+	import { startRecording, encodeWav, type Recorder } from './recordAudio';
+	import { resolveWhisperBinary, resolveWhisperModel, transcribeWav } from './runWhisper';
+	import { dashboardData } from '../../settings/store';
+	import type { VaultQAWidgetSettings } from './types';
 
+	const WIDGET_ID = 'vault-qa';
 	const app = getContext<App>('app');
 
 	let question = '';
@@ -13,9 +22,9 @@
 	let activeHandle: RunClaudeHandle | null = null;
 	let askedByVoice = false;
 
-	let listening = false;
-	let recognition: SpeechRecognition | null = null;
-	const SpeechRecognitionCtor = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+	let recording = false;
+	let transcribing = false;
+	let activeRecorder: Recorder | null = null;
 
 	function vaultPath(): string | null {
 		return app.vault.adapter instanceof FileSystemAdapter ? app.vault.adapter.getBasePath() : null;
@@ -74,44 +83,68 @@
 		window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
 	}
 
-	function toggleListening(): void {
-		if (listening) {
-			recognition?.stop();
+	async function toggleMic(): Promise<void> {
+		if (recording) {
+			await finishRecording();
 			return;
 		}
-		if (!SpeechRecognitionCtor) {
-			errorMsg = 'Voice input is not available in this environment (Obsidian/Electron does not expose speech recognition here).';
-			return;
-		}
+		if (transcribing || asking) return;
 
 		errorMsg = '';
-		recognition = new SpeechRecognitionCtor();
-		recognition.lang = 'en-US';
-		recognition.continuous = false;
-		recognition.interimResults = false;
+		try {
+			activeRecorder = await startRecording();
+			recording = true;
+		} catch (err) {
+			errorMsg = `Couldn't access the microphone: ${err instanceof Error ? err.message : String(err)}`;
+		}
+	}
 
-		recognition.onresult = (event) => {
-			const transcript = event.results[event.results.length - 1]?.[0]?.transcript ?? '';
-			if (transcript.trim()) {
-				question = transcript.trim();
-				void ask(true);
+	async function finishRecording(): Promise<void> {
+		const recorder = activeRecorder;
+		activeRecorder = null;
+		recording = false;
+		if (!recorder) return;
+
+		const settings = (get(dashboardData).widgets[WIDGET_ID]?.settings ?? {}) as VaultQAWidgetSettings;
+		const binary = resolveWhisperBinary(settings.whisperBinaryPath);
+		const model = resolveWhisperModel(settings.whisperModelPath);
+		if (!binary || !model) {
+			recorder.cancel();
+			errorMsg =
+				'Voice input needs a local whisper.cpp binary + model. Set them up via [Configure] in settings.';
+			return;
+		}
+
+		transcribing = true;
+		let tmpFile: string | null = null;
+		try {
+			const samples = await recorder.stop();
+			const wav = encodeWav(samples);
+			tmpFile = path.join(os.tmpdir(), `secondbrain-dashboard-${Date.now()}.wav`);
+			fs.writeFileSync(tmpFile, wav);
+
+			const transcript = await transcribeWav(tmpFile, binary, model);
+			if (transcript) {
+				question = transcript;
+				await ask(true);
 			}
-		};
-		recognition.onerror = (event) => {
-			errorMsg = `Voice input error: ${event.error}`;
-			listening = false;
-		};
-		recognition.onend = () => {
-			listening = false;
-		};
-
-		listening = true;
-		recognition.start();
+		} catch (err) {
+			errorMsg = `Transcription failed: ${err instanceof Error ? err.message : String(err)}`;
+		} finally {
+			transcribing = false;
+			if (tmpFile) {
+				try {
+					fs.unlinkSync(tmpFile);
+				} catch {
+					// best-effort cleanup, not worth surfacing to the user
+				}
+			}
+		}
 	}
 
 	onDestroy(() => {
 		activeHandle?.kill();
-		recognition?.abort();
+		activeRecorder?.cancel();
 		window.speechSynthesis?.cancel();
 	});
 </script>
@@ -123,27 +156,29 @@
 			bind:value={question}
 			on:keydown={handleKeydown}
 			placeholder="Ask your vault…"
-			disabled={asking}
+			disabled={asking || recording || transcribing}
 		/>
 		<button
 			class="sbd-mic-btn"
-			class:sbd-mic-active={listening}
-			on:click={toggleListening}
-			disabled={asking}
-			aria-label={listening ? 'Stop listening' : 'Ask by voice'}
-			title={listening ? 'Stop listening' : 'Ask by voice'}
+			class:sbd-mic-active={recording}
+			on:click={toggleMic}
+			disabled={asking || transcribing}
+			aria-label={recording ? 'Stop recording' : 'Ask by voice'}
+			title={recording ? 'Stop recording' : 'Ask by voice'}
 		>
 			🎤
 		</button>
 		{#if asking}
 			<button on:click={stop}>Stop</button>
 		{:else}
-			<button on:click={() => ask()} disabled={!question.trim()}>Ask</button>
+			<button on:click={() => ask()} disabled={!question.trim() || recording || transcribing}>Ask</button>
 		{/if}
 	</div>
 
-	{#if listening}
-		<div class="sbd-muted">Listening…</div>
+	{#if recording}
+		<div class="sbd-muted">Recording… click the mic again to stop.</div>
+	{:else if transcribing}
+		<div class="sbd-muted">Transcribing…</div>
 	{/if}
 
 	{#if question && (answer || asking || errorMsg)}

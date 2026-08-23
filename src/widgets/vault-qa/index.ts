@@ -1,5 +1,6 @@
 import type { DashboardWidget } from '../types';
 import VaultQAWidget from './VaultQAWidget.svelte';
+import VaultQASettings from './VaultQASettings.svelte';
 
 export const vaultQAWidget: DashboardWidget = {
 	id: 'vault-qa',
@@ -7,5 +8,6 @@ export const vaultQAWidget: DashboardWidget = {
 	icon: 'message-circle-question',
 	defaultSize: '2x1',
 	Component: VaultQAWidget,
+	SettingsComponent: VaultQASettings,
 	hasRefresh: false,
 };

@@ -22,11 +22,102 @@
 	letter-spacing: 0.05em;
 }
 
+.sbd-refresh-all {
+	font-size: 1rem;
+}
+
+.sbd-tabs {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.sbd-tab {
+	background: none;
+	border: none;
+	color: #666;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 0.75rem;
+	letter-spacing: 0.05em;
+	padding: 0;
+}
+
+.sbd-tab-active {
+	color: #ff8c1a;
+	font-weight: 600;
+}
+
 .sbd-empty-state {
 	color: #888;
 	font-size: 0.9rem;
 	padding: 2rem 0;
 	text-align: center;
+}
+
+.sbd-burn {
+	border: 1px solid #262626;
+	background: #111111;
+	border-radius: 2px;
+	padding: 0.7rem 0.9rem;
+	margin-bottom: 1rem;
+}
+
+.sbd-burn-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-bottom: 0.6rem;
+}
+
+.sbd-burn-title {
+	color: #ff8c1a;
+	font-size: 0.75rem;
+	font-variant: small-caps;
+	letter-spacing: 0.08em;
+	font-weight: 600;
+}
+
+.sbd-burn-live {
+	color: #e05c5c;
+}
+
+.sbd-burn-pull {
+	color: #666;
+	font-size: 0.7rem;
+}
+
+.sbd-burn-row {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+}
+
+.sbd-burn-percent {
+	color: #ff8c1a;
+	font-size: 1.4rem;
+	font-weight: 700;
+	min-width: 3ch;
+}
+
+.sbd-burn-track {
+	flex: 1;
+	height: 20px;
+	border: 1px solid #262626;
+	background: repeating-linear-gradient(135deg, #1a1006, #1a1006 6px, #241708 6px, #241708 12px);
+	position: relative;
+	overflow: hidden;
+}
+
+.sbd-burn-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #cc6600, #ff8c1a);
+}
+
+.sbd-burn-total {
+	color: #999;
+	font-size: 0.8rem;
+	white-space: nowrap;
 }
 
 .sbd-grid {
