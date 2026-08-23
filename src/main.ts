@@ -6,6 +6,7 @@ import type { DashboardData } from './widgets/types';
 import { registerWidget } from './widgets/WidgetRegistry';
 import { tasksWidget } from './widgets/tasks';
 import { usageWidget } from './widgets/claude-usage';
+import { calendarWidget } from './widgets/calendar';
 
 export default class SecondBrainDashboardPlugin extends Plugin {
 	data!: DashboardData;
@@ -13,6 +14,7 @@ export default class SecondBrainDashboardPlugin extends Plugin {
 	async onload(): Promise<void> {
 		registerWidget(tasksWidget);
 		registerWidget(usageWidget);
+		registerWidget(calendarWidget);
 
 		this.data = Object.assign(structuredClone(DEFAULT_DATA), await this.loadData());
 		dashboardData.set(this.data);
