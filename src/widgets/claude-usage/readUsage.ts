@@ -4,6 +4,7 @@ import * as path from 'path';
 
 export interface UsageStats {
 	sessionsToday: number;
+	tokensToday: number;
 	tokensThisWeek: number;
 	lastSessionMs: number | null;
 }
@@ -55,6 +56,7 @@ export function readUsageStats(): UsageStats {
 	const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
 	const sessionsToday = new Set<string>();
+	let tokensToday = 0;
 	let tokensThisWeek = 0;
 	let lastSessionMs: number | null = null;
 
@@ -82,14 +84,16 @@ export function readUsageStats(): UsageStats {
 
 			const usage = entry.message?.usage;
 			if (usage && ts >= weekAgo) {
-				tokensThisWeek +=
+				const total =
 					(usage.input_tokens ?? 0) +
 					(usage.output_tokens ?? 0) +
 					(usage.cache_creation_input_tokens ?? 0) +
 					(usage.cache_read_input_tokens ?? 0);
+				tokensThisWeek += total;
+				if (ts >= startOfToday.getTime()) tokensToday += total;
 			}
 		}
 	}
 
-	return { sessionsToday: sessionsToday.size, tokensThisWeek, lastSessionMs };
+	return { sessionsToday: sessionsToday.size, tokensToday, tokensThisWeek, lastSessionMs };
 }

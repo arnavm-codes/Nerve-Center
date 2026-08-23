@@ -44,6 +44,7 @@
 {:else}
 	<ul class="sbd-stat-list">
 		<li><span class="sbd-stat-label">Sessions today</span><span class="sbd-stat-value">{stats.sessionsToday}</span></li>
+		<li><span class="sbd-stat-label">Tokens today</span><span class="sbd-stat-value">{formatTokens(stats.tokensToday)}</span></li>
 		<li><span class="sbd-stat-label">Tokens this wk</span><span class="sbd-stat-value">{formatTokens(stats.tokensThisWeek)}</span></li>
 		<li><span class="sbd-stat-label">Last session</span><span class="sbd-stat-value">{formatAgo(stats.lastSessionMs)}</span></li>
 	</ul>

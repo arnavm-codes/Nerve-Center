@@ -1,4 +1,4 @@
-import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
+import { spawn, type ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -32,10 +32,15 @@ export interface RunClaudeHandle {
 }
 
 export function askVault(question: string, vaultPath: string): RunClaudeHandle {
-	let proc: ChildProcessWithoutNullStreams;
+	let proc: ChildProcess;
 	try {
+		// stdin: 'ignore' - without this, `claude -p` sees an open (but silent)
+		// stdin pipe and waits ~3s to check whether anything's being piped in
+		// before proceeding, printing a "no stdin data received" warning. We
+		// never pipe anything in, so close it up front.
 		proc = spawn(resolveClaudeBinary(), ['-p', question, '--add-dir', vaultPath], {
 			cwd: vaultPath,
+			stdio: ['ignore', 'pipe', 'pipe'],
 		});
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
@@ -51,10 +56,10 @@ export function askVault(question: string, vaultPath: string): RunClaudeHandle {
 	const errorListeners: Array<(message: string) => void> = [];
 	const closeListeners: Array<(code: number | null) => void> = [];
 
-	proc.stdout.on('data', (data: Buffer) => {
+	proc.stdout?.on('data', (data: Buffer) => {
 		for (const cb of chunkListeners) cb(data.toString('utf8'));
 	});
-	proc.stderr.on('data', (data: Buffer) => {
+	proc.stderr?.on('data', (data: Buffer) => {
 		for (const cb of errorListeners) cb(data.toString('utf8'));
 	});
 	proc.on('error', (err) => {
