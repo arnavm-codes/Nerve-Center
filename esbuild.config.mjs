@@ -20,7 +20,15 @@ const context = await esbuild.context({
 	bundle: true,
 	plugins: [
 		esbuildSvelte({
-			preprocess: sveltePreprocess(),
+			// verbatimModuleSyntax stops the TS-stripping step from eliding an
+			// import that's only referenced via Svelte's `$store` auto-subscription
+			// sugar (e.g. `$dashboardData`) - TS's default elision doesn't
+			// recognize that as a "use" of the plain `dashboardData` import, so it
+			// silently drops the import and the store reference throws
+			// ReferenceError at runtime. Bit us once already (see git log).
+			preprocess: sveltePreprocess({
+				typescript: { compilerOptions: { verbatimModuleSyntax: true } },
+			}),
 			compilerOptions: { css: 'injected' },
 		}),
 	],
