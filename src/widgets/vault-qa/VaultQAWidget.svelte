@@ -12,15 +12,23 @@
 	import { dashboardData } from '../../settings/store';
 	import type { VaultQAWidgetSettings } from './types';
 
+	interface ChatMessage {
+		id: string;
+		question: string;
+		answer: string;
+		errorMsg: string;
+		askedByVoice: boolean;
+		done: boolean;
+	}
+
 	const WIDGET_ID = 'vault-qa';
 	const app = getContext<App>('app');
 
-	let question = '';
-	let answer = '';
-	let errorMsg = '';
+	let messages: ChatMessage[] = [];
+	let currentQuestion = '';
+	let setupError = '';
 	let asking = false;
 	let activeHandle: RunClaudeHandle | null = null;
-	let askedByVoice = false;
 
 	let recording = false;
 	let transcribing = false;
@@ -31,19 +39,21 @@
 	}
 
 	async function ask(byVoice = false): Promise<void> {
-		const q = question.trim();
+		const q = currentQuestion.trim();
 		if (!q || asking) return;
 
 		const base = vaultPath();
 		if (!base) {
-			errorMsg = 'Vault Q&A requires desktop Obsidian (needs local filesystem access).';
+			setupError = 'Vault Q&A requires desktop Obsidian (needs local filesystem access).';
 			return;
 		}
 
-		answer = '';
-		errorMsg = '';
+		setupError = '';
 		asking = true;
-		askedByVoice = byVoice;
+		currentQuestion = '';
+
+		const msg: ChatMessage = { id: `${Date.now()}-${Math.random()}`, question: q, answer: '', errorMsg: '', askedByVoice: byVoice, done: false };
+		messages = [...messages, msg];
 
 		const liveContext = await buildLiveContext(app);
 		if (!asking) return; // Stop was hit while context was still being gathered.
@@ -51,15 +61,19 @@
 		const handle = askVault(q, base, liveContext);
 		activeHandle = handle;
 		handle.onChunk((chunk) => {
-			answer += chunk;
+			msg.answer += chunk;
+			messages = messages;
 		});
 		handle.onError((message) => {
-			errorMsg = errorMsg ? `${errorMsg}\n${message}` : message;
+			msg.errorMsg = msg.errorMsg ? `${msg.errorMsg}\n${message}` : message;
+			messages = messages;
 		});
 		handle.onClose(() => {
+			msg.done = true;
+			messages = messages;
 			asking = false;
 			activeHandle = null;
-			if (askedByVoice && answer) speak(answer);
+			if (msg.askedByVoice && msg.answer) speak(msg.answer);
 		});
 	}
 
@@ -68,6 +82,15 @@
 		asking = false;
 		activeHandle = null;
 		window.speechSynthesis?.cancel();
+		const last = messages[messages.length - 1];
+		if (last && !last.done) {
+			last.done = true;
+			messages = messages;
+		}
+	}
+
+	function deleteMessage(id: string): void {
+		messages = messages.filter((m) => m.id !== id);
 	}
 
 	function handleKeydown(e: KeyboardEvent): void {
@@ -90,12 +113,12 @@
 		}
 		if (transcribing || asking) return;
 
-		errorMsg = '';
+		setupError = '';
 		try {
 			activeRecorder = await startRecording();
 			recording = true;
 		} catch (err) {
-			errorMsg = `Couldn't access the microphone: ${err instanceof Error ? err.message : String(err)}`;
+			setupError = `Couldn't access the microphone: ${err instanceof Error ? err.message : String(err)}`;
 		}
 	}
 
@@ -110,7 +133,7 @@
 		const model = resolveWhisperModel(settings.whisperModelPath);
 		if (!binary || !model) {
 			recorder.cancel();
-			errorMsg =
+			setupError =
 				'Voice input needs a local whisper.cpp binary + model. Set them up via [Configure] in settings.';
 			return;
 		}
@@ -125,11 +148,11 @@
 
 			const transcript = await transcribeWav(tmpFile, binary, model);
 			if (transcript) {
-				question = transcript;
+				currentQuestion = transcript;
 				await ask(true);
 			}
 		} catch (err) {
-			errorMsg = `Transcription failed: ${err instanceof Error ? err.message : String(err)}`;
+			setupError = `Transcription failed: ${err instanceof Error ? err.message : String(err)}`;
 		} finally {
 			transcribing = false;
 			if (tmpFile) {
@@ -142,6 +165,10 @@
 		}
 	}
 
+	// Deliberately no kill here: the widget now stays mounted across tab
+	// switches (Dashboard.svelte hides inactive tabs with CSS instead of
+	// destroying them), so onDestroy only fires on a real plugin/view
+	// teardown - which is exactly when an in-flight process should be killed.
 	onDestroy(() => {
 		activeHandle?.kill();
 		activeRecorder?.cancel();
@@ -150,10 +177,43 @@
 </script>
 
 <div class="sbd-qa">
+	{#if messages.length > 0}
+		<div class="sbd-qa-messages">
+			{#each messages as msg (msg.id)}
+				<div class="sbd-qa-message">
+					<div class="sbd-qa-question">&gt; "{msg.question}"</div>
+					{#if msg.answer}
+						<div class="sbd-qa-answer">{msg.answer}</div>
+					{:else if !msg.done}
+						<div class="sbd-muted">Claude: thinking…</div>
+					{/if}
+					{#if msg.errorMsg}
+						<div class="sbd-error">{msg.errorMsg}</div>
+					{/if}
+					{#if msg.done}
+						<button class="sbd-qa-delete" on:click={() => deleteMessage(msg.id)} aria-label="Delete" title="Delete">
+							🗑
+						</button>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	{/if}
+
+	{#if setupError}
+		<div class="sbd-error">{setupError}</div>
+	{/if}
+
+	{#if recording}
+		<div class="sbd-muted">Recording… click the mic again to stop.</div>
+	{:else if transcribing}
+		<div class="sbd-muted">Transcribing…</div>
+	{/if}
+
 	<div class="sbd-qa-input-row">
 		<input
 			type="text"
-			bind:value={question}
+			bind:value={currentQuestion}
 			on:keydown={handleKeydown}
 			placeholder="Ask your vault…"
 			disabled={asking || recording || transcribing}
@@ -171,27 +231,7 @@
 		{#if asking}
 			<button on:click={stop}>Stop</button>
 		{:else}
-			<button on:click={() => ask()} disabled={!question.trim() || recording || transcribing}>Ask</button>
+			<button on:click={() => ask()} disabled={!currentQuestion.trim() || recording || transcribing}>Ask</button>
 		{/if}
 	</div>
-
-	{#if recording}
-		<div class="sbd-muted">Recording… click the mic again to stop.</div>
-	{:else if transcribing}
-		<div class="sbd-muted">Transcribing…</div>
-	{/if}
-
-	{#if question && (answer || asking || errorMsg)}
-		<div class="sbd-qa-question">&gt; "{question}"</div>
-	{/if}
-
-	{#if answer}
-		<div class="sbd-qa-answer">{answer}</div>
-	{:else if asking}
-		<div class="sbd-muted">Claude: thinking…</div>
-	{/if}
-
-	{#if errorMsg}
-		<div class="sbd-error">{errorMsg}</div>
-	{/if}
 </div>

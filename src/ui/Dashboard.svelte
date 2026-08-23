@@ -49,7 +49,15 @@
 		</button>
 	</div>
 
-	{#if activeTab === 'overview'}
+	<!--
+		All three tab panels stay mounted at all times (visibility toggled via
+		CSS, not {#if}/{:else} swapping the DOM) so switching tabs never
+		destroys a widget's component instance. This matters concretely for
+		Ask your Vault: destroying it mid-answer used to kill the in-flight
+		`claude -p` subprocess via its onDestroy handler the moment you
+		switched away from the Second Brain tab.
+	-->
+	<div class="sbd-tab-panel" class:sbd-tab-panel-hidden={activeTab !== 'overview'}>
 		<TokenBurnBar bind:this={tokenBurnRef} />
 		{#if overviewWidgets.length === 0}
 			<div class="sbd-empty-state">
@@ -67,7 +75,9 @@
 				{/each}
 			</div>
 		{/if}
-	{:else if activeTab === 'second-brain'}
+	</div>
+
+	<div class="sbd-tab-panel" class:sbd-tab-panel-hidden={activeTab !== 'second-brain'}>
 		{#if secondBrainWidgets.length === 0}
 			<div class="sbd-empty-state">Ask your Vault is disabled - enable it in settings.</div>
 		{:else}
@@ -81,7 +91,9 @@
 				{/each}
 			</div>
 		{/if}
-	{:else}
+	</div>
+
+	<div class="sbd-tab-panel" class:sbd-tab-panel-hidden={activeTab !== 'research'}>
 		<ResearchPanel />
-	{/if}
+	</div>
 </div>
