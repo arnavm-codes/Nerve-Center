@@ -13,6 +13,7 @@ interface LogEntry {
 	type?: string;
 	timestamp?: string;
 	sessionId?: string;
+	cwd?: string;
 	message?: {
 		id?: string;
 		usage?: {
@@ -47,7 +48,14 @@ function listSessionFiles(projectsDir: string): string[] {
 	return files;
 }
 
-export function readUsageStats(): UsageStats {
+/**
+ * @param cwdFilter - when set, only counts log entries whose recorded `cwd`
+ * matches exactly (used to isolate Vault Q&A's own usage, since every
+ * `claude -p` call it spawns runs with cwd = the vault path). Matching on the
+ * logged cwd is more robust than trying to replicate Claude Code's project-
+ * directory name sanitization ourselves.
+ */
+export function readUsageStats(cwdFilter?: string): UsageStats {
 	const projectsDir = path.join(os.homedir(), '.claude', 'projects');
 	const files = listSessionFiles(projectsDir);
 
@@ -83,6 +91,7 @@ export function readUsageStats(): UsageStats {
 				continue;
 			}
 			if (!entry.timestamp) continue;
+			if (cwdFilter && entry.cwd !== cwdFilter) continue;
 			const ts = Date.parse(entry.timestamp);
 			if (Number.isNaN(ts)) continue;
 

@@ -71,10 +71,12 @@
 		{:else}
 			<ol class="sbd-news-list">
 				{#each news as item, i (item.url + i)}
-					<li>
+					<li class="sbd-news-item">
 						<span class="sbd-row-index">{i + 1}</span>
-						<a href={item.url} target="_blank" rel="noopener" class="sbd-news-title">{item.title}</a>
-						<span class="sbd-news-meta">{item.source}{item.date ? ` · ${item.date}` : ''}</span>
+						<div class="sbd-news-body">
+							<a href={item.url} target="_blank" rel="noopener" class="sbd-news-title">{item.title}</a>
+							<div class="sbd-news-meta">{item.source}{item.date ? ` · ${item.date}` : ''}</div>
+						</div>
 					</li>
 				{/each}
 			</ol>

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { getContext, onDestroy, onMount } from 'svelte';
+	import { FileSystemAdapter, type App } from 'obsidian';
 	import { readUsageStats, type UsageStats } from './readUsage';
 
 	// No local event source for ~/.claude log changes (an external process
@@ -7,13 +8,18 @@
 	// the Tasks widget uses for in-vault changes.
 	const POLL_INTERVAL_MS = 60_000;
 
+	const app = getContext<App>('app');
+	const vaultPath = app.vault.adapter instanceof FileSystemAdapter ? app.vault.adapter.getBasePath() : null;
+
 	let stats: UsageStats | null = null;
+	let vaultQaStats: UsageStats | null = null;
 	let error = false;
 	let pollHandle: ReturnType<typeof setInterval> | null = null;
 
 	function load(): void {
 		try {
 			stats = readUsageStats();
+			vaultQaStats = vaultPath ? readUsageStats(vaultPath) : null;
 			error = false;
 		} catch {
 			error = true;
@@ -60,5 +66,8 @@
 		<li><span class="sbd-stat-label">Tokens today</span><span class="sbd-stat-value">{formatTokens(stats.tokensToday)}</span></li>
 		<li><span class="sbd-stat-label">Tokens this wk</span><span class="sbd-stat-value">{formatTokens(stats.tokensThisWeek)}</span></li>
 		<li><span class="sbd-stat-label">Last session</span><span class="sbd-stat-value">{formatAgo(stats.lastSessionMs)}</span></li>
+		{#if vaultQaStats}
+			<li><span class="sbd-stat-label">Vault Q&A tokens today</span><span class="sbd-stat-value">{formatTokens(vaultQaStats.tokensToday)}</span></li>
+		{/if}
 	</ul>
 {/if}
