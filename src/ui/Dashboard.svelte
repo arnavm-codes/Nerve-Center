@@ -16,7 +16,7 @@
 
 <div class="sbd-dashboard">
 	<div class="sbd-header">
-		<span class="sbd-header-title">§ SECONDBRAIN DASHBOARD</span>
+		<span class="sbd-header-title">§ NERVE-CENTER</span>
 	</div>
 	{#if enabledWidgets.length === 0}
 		<div class="sbd-empty-state">

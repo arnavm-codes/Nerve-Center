@@ -14,7 +14,7 @@ export class DashboardSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-		containerEl.createEl('h2', { text: 'SecondBrain Dashboard' });
+		containerEl.createEl('h2', { text: 'Nerve-Center' });
 
 		const widgets = getRegisteredWidgets();
 		if (widgets.length === 0) {

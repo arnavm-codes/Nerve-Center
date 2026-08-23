@@ -27,13 +27,13 @@ export default class SecondBrainDashboardPlugin extends Plugin {
 
 		this.registerView(DASHBOARD_VIEW_TYPE, (leaf) => new DashboardView(leaf));
 
-		this.addRibbonIcon('layout-dashboard', 'Open SecondBrain Dashboard', () => {
+		this.addRibbonIcon('layout-dashboard', 'Open Nerve-Center', () => {
 			void this.activateView();
 		});
 
 		this.addCommand({
 			id: 'open-secondbrain-dashboard',
-			name: 'Open dashboard',
+			name: 'Open Nerve-Center',
 			callback: () => void this.activateView(),
 		});
 

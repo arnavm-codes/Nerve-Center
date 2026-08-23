@@ -15,7 +15,7 @@ export class DashboardView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return 'SecondBrain Dashboard';
+		return 'Nerve-Center';
 	}
 
 	getIcon(): string {

@@ -84,7 +84,7 @@
 
 	<p class="sbd-muted sbd-settings-help">
 		Create an OAuth "Desktop app" client in Google Cloud Console with the Calendar API enabled,
-		then paste its Client ID and Client Secret here. See the SecondBrain Dashboard project note
+		then paste its Client ID and Client Secret here. See the Nerve-Center project note
 		in the vault for setup steps.
 	</p>
 </div>

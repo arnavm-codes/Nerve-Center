@@ -23,7 +23,7 @@ export class WidgetConfigModal extends Modal {
 				context: new Map([['app', this.app]]),
 			});
 		} catch (err) {
-			console.error(`SecondBrain Dashboard: failed to mount settings for "${this.widget.id}"`, err);
+			console.error(`Nerve-Center: failed to mount settings for "${this.widget.id}"`, err);
 			mountEl.setText(
 				`Failed to load settings for ${this.widget.name}: ${err instanceof Error ? err.message : String(err)}`,
 			);

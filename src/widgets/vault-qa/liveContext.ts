@@ -55,5 +55,5 @@ async function describeUpcomingEvents(): Promise<string> {
 export async function buildLiveContext(app: App): Promise<string> {
 	const sections = (await Promise.all([describeOpenTasks(app), describeUpcomingEvents()])).filter(Boolean);
 	if (sections.length === 0) return '';
-	return `Live context from the SecondBrain Dashboard (use this directly when relevant, no need to re-fetch it):\n\n${sections.join('\n\n')}`;
+	return `Live context from Nerve-Center (use this directly when relevant, no need to re-fetch it):\n\n${sections.join('\n\n')}`;
 }
