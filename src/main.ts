@@ -5,12 +5,14 @@ import { dashboardData, bindPersistence, DEFAULT_DATA } from './settings/store';
 import type { DashboardData } from './widgets/types';
 import { registerWidget } from './widgets/WidgetRegistry';
 import { tasksWidget } from './widgets/tasks';
+import { usageWidget } from './widgets/claude-usage';
 
 export default class SecondBrainDashboardPlugin extends Plugin {
 	data!: DashboardData;
 
 	async onload(): Promise<void> {
 		registerWidget(tasksWidget);
+		registerWidget(usageWidget);
 
 		this.data = Object.assign(structuredClone(DEFAULT_DATA), await this.loadData());
 		dashboardData.set(this.data);
