@@ -14,6 +14,7 @@ interface LogEntry {
 	timestamp?: string;
 	sessionId?: string;
 	message?: {
+		id?: string;
 		usage?: {
 			input_tokens?: number;
 			output_tokens?: number;
@@ -56,6 +57,12 @@ export function readUsageStats(): UsageStats {
 	const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
 	const sessionsToday = new Set<string>();
+	// Claude Code logs one JSONL line per content block (thinking, text,
+	// tool_use, ...) within a single assistant turn, and repeats that turn's
+	// full `usage` totals on every one of those lines - so summing per line
+	// overcounts by however many content blocks each message had. Dedupe by
+	// message id to count each turn's usage exactly once.
+	const countedMessageIds = new Set<string>();
 	let tokensToday = 0;
 	let tokensThisWeek = 0;
 	let lastSessionMs: number | null = null;
@@ -83,12 +90,20 @@ export function readUsageStats(): UsageStats {
 			if (ts >= startOfToday.getTime() && entry.sessionId) sessionsToday.add(entry.sessionId);
 
 			const usage = entry.message?.usage;
+			const messageId = entry.message?.id;
 			if (usage && ts >= weekAgo) {
+				if (messageId) {
+					if (countedMessageIds.has(messageId)) continue;
+					countedMessageIds.add(messageId);
+				}
+				// Excludes cache_read_input_tokens: Claude Code re-reads the full
+				// conversation context from cache on every turn, so including it
+				// makes this "new tokens this turn" figure balloon into the tens
+				// of millions and stops being a useful at-a-glance number.
 				const total =
 					(usage.input_tokens ?? 0) +
 					(usage.output_tokens ?? 0) +
-					(usage.cache_creation_input_tokens ?? 0) +
-					(usage.cache_read_input_tokens ?? 0);
+					(usage.cache_creation_input_tokens ?? 0);
 				tokensThisWeek += total;
 				if (ts >= startOfToday.getTime()) tokensToday += total;
 			}

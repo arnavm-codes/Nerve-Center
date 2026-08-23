@@ -29,7 +29,7 @@
 {:else if tasks.length === 0}
 	<div class="sbd-muted">No tasks found.</div>
 {:else if openTasks.length === 0}
-	<div class="sbd-muted">All {doneCount} tasks done.</div>
+	<div class="sbd-muted">All tasks done ({doneCount}).</div>
 {:else}
 	<ol class="sbd-task-list">
 		{#each openTasks.slice(0, 20) as task, i (task.file + task.text + i)}
