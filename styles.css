@@ -201,3 +201,28 @@
 .sbd-settings-help {
 	font-size: 0.75rem;
 }
+
+.sbd-qa {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.sbd-qa-input-row {
+	display: flex;
+	gap: 0.4rem;
+}
+
+.sbd-qa-input-row input {
+	flex: 1;
+}
+
+.sbd-qa-question {
+	color: #999;
+	font-size: 0.8rem;
+}
+
+.sbd-qa-answer {
+	white-space: pre-wrap;
+	font-size: 0.85rem;
+}
