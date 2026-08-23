@@ -31,14 +31,28 @@ export interface RunClaudeHandle {
 	kill(): void;
 }
 
-export function askVault(question: string, vaultPath: string): RunClaudeHandle {
+export function askVault(question: string, vaultPath: string, liveContext?: string): RunClaudeHandle {
 	let proc: ChildProcess;
 	try {
+		const args = [
+			'-p',
+			question,
+			'--add-dir',
+			vaultPath,
+			// Read-only, vault-scoped, no internet: whitelist file search/read
+			// tools only. No Bash, no WebSearch/WebFetch, no Edit/Write - this
+			// widget answers questions, it doesn't act on the vault or the web.
+			'--allowedTools',
+			'Read Glob Grep',
+		];
+		if (liveContext) {
+			args.push('--append-system-prompt', liveContext);
+		}
 		// stdin: 'ignore' - without this, `claude -p` sees an open (but silent)
 		// stdin pipe and waits ~3s to check whether anything's being piped in
 		// before proceeding, printing a "no stdin data received" warning. We
 		// never pipe anything in, so close it up front.
-		proc = spawn(resolveClaudeBinary(), ['-p', question, '--add-dir', vaultPath], {
+		proc = spawn(resolveClaudeBinary(), args, {
 			cwd: vaultPath,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});

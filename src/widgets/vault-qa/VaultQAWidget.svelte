@@ -2,6 +2,7 @@
 	import { getContext, onDestroy } from 'svelte';
 	import { FileSystemAdapter, type App } from 'obsidian';
 	import { askVault, type RunClaudeHandle } from './runClaude';
+	import { buildLiveContext } from './liveContext';
 
 	const app = getContext<App>('app');
 
@@ -15,7 +16,7 @@
 		return app.vault.adapter instanceof FileSystemAdapter ? app.vault.adapter.getBasePath() : null;
 	}
 
-	function ask(): void {
+	async function ask(): Promise<void> {
 		const q = question.trim();
 		if (!q || asking) return;
 
@@ -29,7 +30,10 @@
 		errorMsg = '';
 		asking = true;
 
-		const handle = askVault(q, base);
+		const liveContext = await buildLiveContext(app);
+		if (!asking) return; // Stop was hit while context was still being gathered.
+
+		const handle = askVault(q, base, liveContext);
 		activeHandle = handle;
 		handle.onChunk((chunk) => {
 			answer += chunk;
