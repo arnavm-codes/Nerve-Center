@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { DashboardView, DASHBOARD_VIEW_TYPE } from './DashboardView';
 import { DashboardSettingTab } from './settings/SettingsTab';
 import { dashboardData, bindPersistence, DEFAULT_DATA } from './settings/store';
@@ -53,11 +53,20 @@ export default class SecondBrainDashboardPlugin extends Plugin {
 
 	private async activateView(): Promise<void> {
 		const { workspace } = this.app;
-		let leaf: WorkspaceLeaf | null = workspace.getLeavesOfType(DASHBOARD_VIEW_TYPE)[0] ?? null;
-		if (!leaf) {
-			leaf = workspace.getLeaf('tab');
-			await leaf.setViewState({ type: DASHBOARD_VIEW_TYPE, active: true });
+		const existing = workspace.getLeavesOfType(DASHBOARD_VIEW_TYPE)[0];
+
+		// If the dashboard leaf already lives in the main workspace area, just
+		// reveal it. Otherwise (e.g. it got dragged into a sidebar) close that
+		// one and open a fresh tab in the main area - the dashboard is meant to
+		// be a full pane, not a sidebar widget.
+		if (existing && existing.getRoot() === workspace.rootSplit) {
+			workspace.revealLeaf(existing);
+			return;
 		}
+		existing?.detach();
+
+		const leaf = workspace.getLeaf('tab');
+		await leaf.setViewState({ type: DASHBOARD_VIEW_TYPE, active: true });
 		workspace.revealLeaf(leaf);
 	}
 }
