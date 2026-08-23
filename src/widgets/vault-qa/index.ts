@@ -7,4 +7,5 @@ export const vaultQAWidget: DashboardWidget = {
 	icon: 'message-circle-question',
 	defaultSize: '2x1',
 	Component: VaultQAWidget,
+	hasRefresh: false,
 };

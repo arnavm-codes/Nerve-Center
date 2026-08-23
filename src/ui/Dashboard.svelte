@@ -29,7 +29,7 @@
 				<div class="sbd-grid-cell sbd-size-{widget.defaultSize}">
 					<WidgetShell
 						title={widget.name}
-						onRefresh={() => widgetRefs[widget.id]?.refresh?.()}
+						onRefresh={widget.hasRefresh === false ? undefined : () => widgetRefs[widget.id]?.refresh?.()}
 					>
 						<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
 					</WidgetShell>

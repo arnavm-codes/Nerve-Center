@@ -1,9 +1,15 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { readUsageStats, type UsageStats } from './readUsage';
+
+	// No local event source for ~/.claude log changes (an external process
+	// writes them), so poll on a timer rather than the event-driven approach
+	// the Tasks widget uses for in-vault changes.
+	const POLL_INTERVAL_MS = 60_000;
 
 	let stats: UsageStats | null = null;
 	let error = false;
+	let pollHandle: ReturnType<typeof setInterval> | null = null;
 
 	function load(): void {
 		try {
@@ -18,7 +24,14 @@
 		load();
 	}
 
-	onMount(load);
+	onMount(() => {
+		load();
+		pollHandle = setInterval(load, POLL_INTERVAL_MS);
+	});
+
+	onDestroy(() => {
+		if (pollHandle) clearInterval(pollHandle);
+	});
 
 	function formatTokens(n: number): string {
 		if (n >= 1_000_000) return `~${(n / 1_000_000).toFixed(1)}m`;

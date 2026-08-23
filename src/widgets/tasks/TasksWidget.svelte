@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
-	import type { App } from 'obsidian';
+	import { getContext, onDestroy, onMount } from 'svelte';
+	import type { App, EventRef, TAbstractFile } from 'obsidian';
 	import { scanTasks, type TaskItem } from './scanTasks';
 
 	const app = getContext<App>('app');
+	const DEBOUNCE_MS = 500;
 
 	let tasks: TaskItem[] = [];
 	let loading = true;
+	let debounceHandle: ReturnType<typeof setTimeout> | null = null;
+	const eventRefs: EventRef[] = [];
 
 	async function load(): Promise<void> {
 		loading = true;
@@ -18,7 +21,25 @@
 		void load();
 	}
 
-	onMount(() => void load());
+	function onVaultChange(file: TAbstractFile): void {
+		if (!file.path.endsWith('.md')) return;
+		if (debounceHandle) clearTimeout(debounceHandle);
+		debounceHandle = setTimeout(() => void load(), DEBOUNCE_MS);
+	}
+
+	onMount(() => {
+		void load();
+		// Refresh reactively on vault changes instead of polling - a task
+		// checkbox toggle should show up right away, not after a fixed delay.
+		eventRefs.push(app.vault.on('modify', onVaultChange));
+		eventRefs.push(app.vault.on('create', onVaultChange));
+		eventRefs.push(app.vault.on('delete', onVaultChange));
+	});
+
+	onDestroy(() => {
+		if (debounceHandle) clearTimeout(debounceHandle);
+		for (const ref of eventRefs) app.vault.offref(ref);
+	});
 
 	$: openTasks = tasks.filter((t) => !t.checked);
 	$: doneCount = tasks.length - openTasks.length;
