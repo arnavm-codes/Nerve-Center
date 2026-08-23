@@ -6,10 +6,6 @@ vault using the `claude` CLI - no custom RAG/embeddings layer.
 
 ![Nerve-Center dashboard](docs/screenshot.png)
 
-Design doc and progress log: `Projects/SecondBrain-Dashboard.md` in the vault
-(the plugin's internal id and this note's filename still say
-"secondbrain-dashboard" - only the user-facing name changed to Nerve-Center).
-
 ## Overview tab
 
 - **Token burn** - a live progress bar showing today's token usage against a
@@ -40,7 +36,15 @@ the browser's `speechSynthesis`.
 
 ## Research tab
 
-Empty for now.
+- **AI/ML News** - a handful of recent headlines via a DuckDuckGo search MCP
+  server (`duckduckgo-mcp-server`, run on demand through `uvx` - no
+  persistent install), fetched by a single restricted `claude -p` call
+  (search tool only, no filesystem/shell access). Auto-fetches at most once
+  per calendar day to minimize token usage; a manual refresh button bypasses
+  that cap when you explicitly want a fresh pull.
+- **Research Notes** - clickable buttons for every note living in a
+  `Research/` folder or tagged `#research`, opening the note directly in
+  Obsidian.
 
 ## Development
 

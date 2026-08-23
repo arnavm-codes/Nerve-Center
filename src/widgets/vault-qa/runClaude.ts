@@ -17,7 +17,7 @@ const FALLBACK_LOCATIONS = [
 	'/opt/homebrew/bin/claude',
 ];
 
-function resolveClaudeBinary(): string {
+export function resolveClaudeBinary(): string {
 	for (const candidate of FALLBACK_LOCATIONS) {
 		if (fs.existsSync(candidate)) return candidate;
 	}

@@ -3,6 +3,7 @@
 	import { getRegisteredWidgets } from '../widgets/WidgetRegistry';
 	import WidgetShell from './WidgetShell.svelte';
 	import TokenBurnBar from './TokenBurnBar.svelte';
+	import ResearchPanel from '../research/ResearchPanel.svelte';
 
 	const widgetRefs: Record<string, { refresh?: () => void }> = {};
 	let tokenBurnRef: { refresh?: () => void } | undefined;
@@ -81,6 +82,6 @@
 			</div>
 		{/if}
 	{:else}
-		<div class="sbd-empty-state">Research — nothing here yet.</div>
+		<ResearchPanel />
 	{/if}
 </div>
