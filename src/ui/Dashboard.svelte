@@ -3,6 +3,8 @@
 	import { getRegisteredWidgets } from '../widgets/WidgetRegistry';
 	import WidgetShell from './WidgetShell.svelte';
 
+	const widgetRefs: Record<string, { refresh?: () => void }> = {};
+
 	$: enabledWidgets = getRegisteredWidgets()
 		.filter((w) => $dashboardData.widgets[w.id]?.enabled ?? true)
 		.sort(
@@ -25,8 +27,11 @@
 		<div class="sbd-grid">
 			{#each enabledWidgets as widget (widget.id)}
 				<div class="sbd-grid-cell sbd-size-{widget.defaultSize}">
-					<WidgetShell title={widget.name}>
-						<svelte:component this={widget.Component} />
+					<WidgetShell
+						title={widget.name}
+						onRefresh={() => widgetRefs[widget.id]?.refresh?.()}
+					>
+						<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
 					</WidgetShell>
 				</div>
 			{/each}

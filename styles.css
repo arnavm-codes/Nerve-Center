@@ -88,3 +88,51 @@
 	padding: 0.6rem;
 	font-size: 0.85rem;
 }
+
+.sbd-muted {
+	color: #888;
+}
+
+.sbd-task-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+
+.sbd-task-list li {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+}
+
+.sbd-row-index {
+	color: #555;
+	min-width: 1.2em;
+	text-align: right;
+}
+
+.sbd-checkbox {
+	color: #ff8c1a;
+}
+
+.sbd-task-text {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sbd-task-file {
+	color: #555;
+	font-size: 0.75rem;
+}
+
+.sbd-task-summary {
+	margin-top: 0.5rem;
+	font-size: 0.75rem;
+	border-top: 1px solid #262626;
+	padding-top: 0.4rem;
+}

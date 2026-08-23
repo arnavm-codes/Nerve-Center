@@ -26,7 +26,10 @@ export class DashboardView extends ItemView {
 		const container = this.containerEl.children[1] as HTMLElement;
 		container.empty();
 		container.addClass('sbd-view-container');
-		this.component = new Dashboard({ target: container as HTMLElement });
+		this.component = new Dashboard({
+			target: container,
+			context: new Map([['app', this.app]]),
+		});
 	}
 
 	async onClose(): Promise<void> {
