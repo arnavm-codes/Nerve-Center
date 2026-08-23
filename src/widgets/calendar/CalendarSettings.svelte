@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
 	import { dashboardData, updateWidgetSettings } from '../../settings/store';
 	import { runAuthFlow } from './oauth';
 	import type { CalendarWidgetSettings } from './types';
@@ -7,8 +8,9 @@
 
 	$: settings = ($dashboardData.widgets[WIDGET_ID]?.settings ?? {}) as CalendarWidgetSettings;
 
-	let clientId = settings.clientId ?? '';
-	let clientSecret = settings.clientSecret ?? '';
+	const initialSettings = (get(dashboardData).widgets[WIDGET_ID]?.settings ?? {}) as CalendarWidgetSettings;
+	let clientId = initialSettings.clientId ?? '';
+	let clientSecret = initialSettings.clientSecret ?? '';
 	let connecting = false;
 	let errorMsg = '';
 

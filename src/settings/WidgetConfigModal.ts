@@ -17,10 +17,17 @@ export class WidgetConfigModal extends Modal {
 		contentEl.createEl('h3', { text: `Configure ${this.widget.name}` });
 		if (!this.widget.SettingsComponent) return;
 		const mountEl = contentEl.createDiv();
-		this.component = new this.widget.SettingsComponent({
-			target: mountEl,
-			context: new Map([['app', this.app]]),
-		});
+		try {
+			this.component = new this.widget.SettingsComponent({
+				target: mountEl,
+				context: new Map([['app', this.app]]),
+			});
+		} catch (err) {
+			console.error(`SecondBrain Dashboard: failed to mount settings for "${this.widget.id}"`, err);
+			mountEl.setText(
+				`Failed to load settings for ${this.widget.name}: ${err instanceof Error ? err.message : String(err)}`,
+			);
+		}
 	}
 
 	onClose(): void {
