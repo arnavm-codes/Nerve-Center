@@ -4,11 +4,9 @@ A modular, personal home-base dashboard for Obsidian: calendar, tasks, Claude
 Code usage, and a text/voice Q&A widget that answers questions about your own
 vault using the `claude` CLI - no custom RAG/embeddings layer.
 
-![Nerve-Center dashboard](docs/screenshot.png)
-
-![Nerve-Center research tab](docs/research-screenshot.png)
-
 ## Overview tab
+
+![Nerve-Center dashboard](docs/screenshot.png)
 
 - **Token burn** - a live progress bar showing today's token usage against a
   self-set daily budget (5M by default - not Anthropic's actual plan limit,
@@ -47,6 +45,8 @@ the browser's `speechSynthesis`.
 - **Research Notes** - clickable buttons for every note living in a
   `Research/` folder or tagged `#research`, opening the note directly in
   Obsidian.
+
+![Nerve-Center research tab](docs/research-screenshot.png)
 
 ## Development
 
