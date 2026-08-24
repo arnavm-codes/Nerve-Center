@@ -5,6 +5,7 @@
 	padding: 1rem;
 	height: 100%;
 	overflow-y: auto;
+	overflow-x: auto;
 }
 
 .sbd-header {
@@ -148,6 +149,16 @@
 .sbd-overview-scroll {
 	overflow-x: auto;
 	overflow-y: visible;
+	/* Snaps each column fully into view instead of leaving a half-cut sliver
+	   of the next one showing at rest - in a narrow/half-screen pane you see
+	   only the widget grid until you actually scroll, then the Tasks panel
+	   snaps in cleanly, rather than both being partially, uselessly visible. */
+	scroll-snap-type: x mandatory;
+	/* Query container for the breakpoint below - keyed to this element's own
+	   width (set by its parent tab panel, independent of the row's content),
+	   not the browser viewport, since this is a docked pane that can be any
+	   width regardless of window size. */
+	container-type: inline-size;
 }
 
 .sbd-overview-layout {
@@ -159,6 +170,8 @@
 .sbd-overview-main {
 	flex: 1 1 480px;
 	min-width: 480px;
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
 }
 
 .sbd-overview-side-panel {
@@ -166,6 +179,23 @@
 	min-width: 320px;
 	display: flex;
 	flex-direction: column;
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
+}
+
+/*
+ * Below the width where both columns comfortably fit (~480 main + 320 side +
+ * gap), the main grid previously just got squeezed down toward its 480px
+ * floor to make room for Tasks in the row math - cramped, and Tasks was
+ * still only reachable by scrolling anyway. Instead, below this breakpoint
+ * the grid takes the full visible width (no squeeze at all) and the Tasks
+ * panel is pushed entirely off-screen, reachable only by scrolling right.
+ */
+@container (max-width: 850px) {
+	.sbd-overview-main {
+		flex: 0 0 100%;
+		min-width: 0;
+	}
 }
 
 /* Stretches the Tasks card to fill the full column height instead of just
