@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { shell } from 'electron';
 	import { dashboardData, updateWidgetSettings } from '../../settings/store';
 	import { refreshAccessToken } from './oauth';
 	import { fetchUpcomingEvents, type CalendarEvent } from './events';
 	import type { CalendarWidgetSettings } from './types';
-
-	const CALENDAR_URL = 'https://calendar.google.com/calendar/r';
 
 	const WIDGET_ID = 'calendar';
 	const POLL_INTERVAL_MS = 5 * 60 * 1000;
@@ -62,19 +59,18 @@
 
 	function formatEventTime(event: CalendarEvent): string {
 		if (event.allDay) return 'All day';
+		// Explicit timeZone rather than relying on toLocaleString's implicit
+		// default - if this still shows the wrong time, the bug is upstream
+		// (in what Google's API returned for event.start), not in display.
 		return new Date(event.start).toLocaleString(undefined, {
 			weekday: 'short',
 			hour: '2-digit',
 			minute: '2-digit',
+			timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		});
 	}
-</script>
 
-<div class="sbd-agenda-toolbar">
-	<button class="sbd-icon-btn" on:click={() => shell.openExternal(CALENDAR_URL)} aria-label="Open in browser" title="Open in browser">
-		↗
-	</button>
-</div>
+</script>
 
 {#if !settings.clientId || !settings.refreshToken}
 	<div class="sbd-muted">Not connected — configure Google Calendar via [Configure] in settings.</div>
@@ -89,7 +85,7 @@
 		{#each events.slice(0, 10) as event, i (event.id)}
 			<li>
 				<span class="sbd-row-index">{i + 1}</span>
-				<span class="sbd-agenda-time">{formatEventTime(event)}</span>
+				<span class="sbd-agenda-time" title={event.start}>{formatEventTime(event)}</span>
 				<span class="sbd-task-text">{event.summary}</span>
 			</li>
 		{/each}

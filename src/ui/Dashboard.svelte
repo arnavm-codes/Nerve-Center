@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { shell } from 'electron';
 	import { dashboardData } from '../settings/store';
 	import { getRegisteredWidgets } from '../widgets/WidgetRegistry';
 	import WidgetShell from './WidgetShell.svelte';
 	import TokenBurnBar from './TokenBurnBar.svelte';
 	import ResearchPanel from '../research/ResearchPanel.svelte';
+
+	const CALENDAR_URL = 'https://calendar.google.com/calendar/r';
 
 	const widgetRefs: Record<string, { refresh?: () => void }> = {};
 	let tokenBurnRef: { refresh?: () => void } | undefined;
@@ -88,6 +91,18 @@
 								<div class="sbd-grid-cell sbd-size-{widget.defaultSize}">
 									<WidgetShell title={widget.name}>
 										<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
+										<svelte:fragment slot="actions">
+											{#if widget.id === 'calendar'}
+												<button
+													class="sbd-icon-btn"
+													on:click={() => shell.openExternal(CALENDAR_URL)}
+													aria-label="Open in browser"
+													title="Open in browser"
+												>
+													↗
+												</button>
+											{/if}
+										</svelte:fragment>
 									</WidgetShell>
 								</div>
 							{/each}

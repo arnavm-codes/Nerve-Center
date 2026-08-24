@@ -6,10 +6,12 @@ vault using the `claude` CLI - no custom RAG/embeddings layer.
 
 ![Nerve-Center dashboard](docs/screenshot.png)
 
+![Nerve-Center research tab](docs/research-screenshot.png)
+
 ## Overview tab
 
 - **Token burn** - a live progress bar showing today's token usage against a
-  self-set daily budget (2M by default - not Anthropic's actual plan limit,
+  self-set daily budget (5M by default - not Anthropic's actual plan limit,
   which isn't available locally).
 - **Claude Usage** - reads local `~/.claude` session logs for today's/this
   week's token usage and recent activity, no auth. Polls every 60s.

@@ -7,6 +7,7 @@
 	<div class="sbd-widget-header">
 		<span class="sbd-widget-title">{title}</span>
 		<span class="sbd-widget-actions">
+			<slot name="actions" />
 			{#if onExpand}
 				<button class="sbd-icon-btn" on:click={onExpand} aria-label="Expand">⤢</button>
 			{/if}
