@@ -130,6 +130,58 @@
 	gap: 1rem;
 }
 
+.sbd-grid-row-pair {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	align-items: stretch;
+}
+
+/*
+ * The Overview tab is a fixed-width two-column row (widget grid + the Tasks
+ * side panel) wrapped in a horizontally scrolling container - deliberate,
+ * not a responsive squeeze. On a full-width pane both columns fit; in a
+ * narrow tiled/half-screen window (e.g. Hyprland split), the row keeps its
+ * natural width and the container scrolls sideways instead of cramming
+ * either side smaller than its usable minimum.
+ */
+.sbd-overview-scroll {
+	overflow-x: auto;
+	overflow-y: visible;
+}
+
+.sbd-overview-layout {
+	display: flex;
+	align-items: stretch;
+	gap: 1rem;
+}
+
+.sbd-overview-main {
+	flex: 1 1 480px;
+	min-width: 480px;
+}
+
+.sbd-overview-side-panel {
+	flex: 0 0 320px;
+	min-width: 320px;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Stretches the Tasks card to fill the full column height instead of just
+   hugging its own content - scoped to this panel only, doesn't affect
+   the widget grid's normal content-sized cards. */
+.sbd-overview-side-panel .sbd-widget {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.sbd-overview-side-panel .sbd-widget-content {
+	flex: 1;
+	overflow-y: auto;
+}
+
 .sbd-widget {
 	border: 1px solid #262626;
 	background: #111111;
@@ -208,6 +260,27 @@
 	color: #ff8c1a;
 }
 
+.sbd-task-link {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	flex: 1;
+	min-width: 0;
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	color: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.sbd-task-link:hover .sbd-task-text {
+	color: #ff8c1a;
+	text-decoration: underline;
+}
+
 .sbd-task-text {
 	flex: 1;
 	overflow: hidden;
@@ -250,6 +323,38 @@
 	font-weight: 600;
 }
 
+.sbd-stat-toggle {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	cursor: pointer;
+}
+
+.sbd-health-detail-list {
+	list-style: none;
+	margin: 0 0 0.35rem;
+	padding: 0.35rem 0 0 0.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	border-left: 1px solid #262626;
+	font-size: 0.75rem;
+}
+
+.sbd-health-detail-list .sbd-task-link {
+	color: #999;
+}
+
+.sbd-health-tags {
+	margin-top: 0.5rem;
+	font-size: 0.75rem;
+}
+
 .sbd-agenda-list {
 	list-style: none;
 	margin: 0;
@@ -271,8 +376,87 @@
 	white-space: nowrap;
 }
 
+.sbd-agenda-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 0.3rem;
+}
+
 .sbd-error {
 	color: #e05c5c;
+}
+
+.sbd-digest {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	align-items: flex-start;
+}
+
+.sbd-digest-text {
+	line-height: 1.5;
+}
+
+.sbd-digest-meta {
+	font-size: 0.75rem;
+}
+
+.sbd-dev-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.sbd-dev-list li {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.sbd-dev-repo {
+	color: #ff8c1a;
+	font-weight: 600;
+}
+
+.sbd-dev-commit {
+	color: #d4d4d4;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1;
+	min-width: 0;
+}
+
+.sbd-dev-counts {
+	color: #999;
+	font-size: 0.75rem;
+	white-space: nowrap;
+}
+
+.sbd-dev-synced {
+	margin-top: 0.5rem;
+	font-size: 0.75rem;
+}
+
+.sbd-repo-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+
+.sbd-repo-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.sbd-repo-add-row {
+	display: flex;
+	gap: 0.5rem;
 }
 
 .sbd-settings-form {

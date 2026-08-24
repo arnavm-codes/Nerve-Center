@@ -8,6 +8,9 @@ import { tasksWidget } from './widgets/tasks';
 import { usageWidget } from './widgets/claude-usage';
 import { calendarWidget } from './widgets/calendar';
 import { vaultQAWidget } from './widgets/vault-qa';
+import { vaultHealthWidget } from './widgets/vault-health';
+import { digestWidget } from './widgets/digest';
+import { devActivityWidget } from './widgets/dev-activity';
 
 export default class SecondBrainDashboardPlugin extends Plugin {
 	data!: DashboardData;
@@ -17,6 +20,9 @@ export default class SecondBrainDashboardPlugin extends Plugin {
 		registerWidget(tasksWidget);
 		registerWidget(calendarWidget);
 		registerWidget(vaultQAWidget);
+		registerWidget(vaultHealthWidget);
+		registerWidget(digestWidget);
+		registerWidget(devActivityWidget);
 
 		this.data = Object.assign(structuredClone(DEFAULT_DATA), await this.loadData());
 		dashboardData.set(this.data);

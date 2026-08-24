@@ -25,6 +25,21 @@
 	$: overviewWidgets = enabledWidgets.filter((w) => w.id !== 'vault-qa');
 	$: secondBrainWidgets = enabledWidgets.filter((w) => w.id === 'vault-qa');
 
+	// Claude Usage + Vault Health render as an equal-height side-by-side pair
+	// (a CSS grid row stretches both cells to match); Tasks sits in its own
+	// tall right-hand column (where the abandoned Google Calendar embed used
+	// to be); Weekly Digest always stays last, full-width. Everything else
+	// flows normally. Grouped by id rather than by `order` so this holds
+	// regardless of how widgets get reordered later.
+	const usageHealthIds = new Set(['claude-usage', 'vault-health']);
+	const sideColumnIds = new Set(['tasks']);
+	$: usageHealthPair = overviewWidgets.filter((w) => usageHealthIds.has(w.id));
+	$: sideColumnWidgets = overviewWidgets.filter((w) => sideColumnIds.has(w.id));
+	$: digestWidgets = overviewWidgets.filter((w) => w.id === 'digest');
+	$: otherWidgets = overviewWidgets.filter(
+		(w) => !usageHealthIds.has(w.id) && !sideColumnIds.has(w.id) && w.id !== 'digest',
+	);
+
 	function refreshAll(): void {
 		tokenBurnRef?.refresh?.();
 		for (const widget of enabledWidgets) widgetRefs[widget.id]?.refresh?.();
@@ -58,23 +73,57 @@
 		switched away from the Second Brain tab.
 	-->
 	<div class="sbd-tab-panel" class:sbd-tab-panel-hidden={activeTab !== 'overview'}>
-		<TokenBurnBar bind:this={tokenBurnRef} />
-		{#if overviewWidgets.length === 0}
-			<div class="sbd-empty-state">
-				No widgets yet. Widgets will register here as they're built (Tasks, Claude
-				Usage, Calendar).
-			</div>
-		{:else}
-			<div class="sbd-grid">
-				{#each overviewWidgets as widget (widget.id)}
-					<div class="sbd-grid-cell sbd-size-{widget.defaultSize}">
-						<WidgetShell title={widget.name}>
-							<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
-						</WidgetShell>
+		<div class="sbd-overview-scroll">
+			<div class="sbd-overview-layout">
+				<div class="sbd-overview-main">
+					<TokenBurnBar bind:this={tokenBurnRef} />
+					{#if overviewWidgets.length === 0}
+						<div class="sbd-empty-state">
+							No widgets yet. Widgets will register here as they're built (Tasks, Claude
+							Usage, Calendar).
+						</div>
+					{:else}
+						<div class="sbd-grid">
+							{#each otherWidgets as widget (widget.id)}
+								<div class="sbd-grid-cell sbd-size-{widget.defaultSize}">
+									<WidgetShell title={widget.name}>
+										<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
+									</WidgetShell>
+								</div>
+							{/each}
+
+							{#if usageHealthPair.length > 0}
+								<div class="sbd-grid-row-pair">
+									{#each usageHealthPair as widget (widget.id)}
+										<WidgetShell title={widget.name}>
+											<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
+										</WidgetShell>
+									{/each}
+								</div>
+							{/if}
+
+							{#each digestWidgets as widget (widget.id)}
+								<div class="sbd-grid-cell sbd-size-{widget.defaultSize}">
+									<WidgetShell title={widget.name}>
+										<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
+									</WidgetShell>
+								</div>
+							{/each}
+						</div>
+					{/if}
+				</div>
+
+				{#if sideColumnWidgets.length > 0}
+					<div class="sbd-overview-side-panel">
+						{#each sideColumnWidgets as widget (widget.id)}
+							<WidgetShell title={widget.name}>
+								<svelte:component this={widget.Component} bind:this={widgetRefs[widget.id]} />
+							</WidgetShell>
+						{/each}
 					</div>
-				{/each}
+				{/if}
 			</div>
-		{/if}
+		</div>
 	</div>
 
 	<div class="sbd-tab-panel" class:sbd-tab-panel-hidden={activeTab !== 'second-brain'}>

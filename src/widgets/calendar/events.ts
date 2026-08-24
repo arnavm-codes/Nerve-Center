@@ -14,9 +14,12 @@ interface GoogleEventItem {
 export async function fetchUpcomingEvents(accessToken: string, days: number): Promise<CalendarEvent[]> {
 	const now = new Date();
 	const timeMax = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+	return fetchEventsInRange(accessToken, now, timeMax);
+}
 
+export async function fetchEventsInRange(accessToken: string, timeMin: Date, timeMax: Date): Promise<CalendarEvent[]> {
 	const url = new URL('https://www.googleapis.com/calendar/v3/calendars/primary/events');
-	url.searchParams.set('timeMin', now.toISOString());
+	url.searchParams.set('timeMin', timeMin.toISOString());
 	url.searchParams.set('timeMax', timeMax.toISOString());
 	url.searchParams.set('singleEvents', 'true');
 	url.searchParams.set('orderBy', 'startTime');

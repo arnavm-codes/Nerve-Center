@@ -6,7 +6,7 @@
 	// available locally - see the Claude Usage widget). Purely a personal
 	// reference point to visualize burn against, matching the "TOKEN BURN"
 	// strip from the command-center reference screenshot.
-	const DAILY_TOKEN_BUDGET = 2_000_000;
+	const DAILY_TOKEN_BUDGET = 5_000_000;
 	const POLL_INTERVAL_MS = 60_000;
 
 	let tokensToday = 0;

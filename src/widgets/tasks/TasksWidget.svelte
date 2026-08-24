@@ -21,6 +21,12 @@
 		void load();
 	}
 
+	function openTask(task: TaskItem): void {
+		const file = app.vault.getFileByPath(task.path);
+		if (!file) return;
+		void app.workspace.getLeaf(false).openFile(file, { eState: { line: task.line } });
+	}
+
 	function onVaultChange(file: TAbstractFile): void {
 		if (!file.path.endsWith('.md')) return;
 		if (debounceHandle) clearTimeout(debounceHandle);
@@ -57,8 +63,10 @@
 			<li>
 				<span class="sbd-row-index">{i + 1}</span>
 				<span class="sbd-checkbox">☐</span>
-				<span class="sbd-task-text">{task.text}</span>
-				<span class="sbd-task-file">{task.file}</span>
+				<button class="sbd-task-link" on:click={() => openTask(task)} title="Open in {task.file}">
+					<span class="sbd-task-text">{task.text}</span>
+					<span class="sbd-task-file">{task.file}</span>
+				</button>
 			</li>
 		{/each}
 	</ol>
