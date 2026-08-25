@@ -1,4 +1,5 @@
 import { Plugin } from 'obsidian';
+import { NERVE_CENTER_ICON, registerNerveCenterIcon } from './icon';
 import { DashboardView, DASHBOARD_VIEW_TYPE } from './DashboardView';
 import { DashboardSettingTab } from './settings/SettingsTab';
 import { dashboardData, bindPersistence, DEFAULT_DATA } from './settings/store';
@@ -16,6 +17,8 @@ export default class SecondBrainDashboardPlugin extends Plugin {
 	data!: DashboardData;
 
 	async onload(): Promise<void> {
+		registerNerveCenterIcon();
+
 		registerWidget(usageWidget);
 		registerWidget(tasksWidget);
 		registerWidget(calendarWidget);
@@ -33,7 +36,7 @@ export default class SecondBrainDashboardPlugin extends Plugin {
 
 		this.registerView(DASHBOARD_VIEW_TYPE, (leaf) => new DashboardView(leaf));
 
-		this.addRibbonIcon('layout-dashboard', 'Open Nerve-Center', () => {
+		this.addRibbonIcon(NERVE_CENTER_ICON, 'Open Nerve-Center', () => {
 			void this.activateView();
 		});
 
